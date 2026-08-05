@@ -26,7 +26,9 @@ function NavRow({ icon, label, highlight = TRANSPARENT_GREEN, borderTop = false,
       <p className="nav-row__label">{label}</p>
       {expandable && (
         <div className="nav-row__chevron">
-          <img src={angleRight} alt="" />
+          <div className="nav-row__chevron-inner">
+            <img src={angleRight} alt="" />
+          </div>
         </div>
       )}
     </div>

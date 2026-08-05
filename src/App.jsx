@@ -1,6 +1,7 @@
 import Sidebar from './components/Sidebar'
 import TopHeader from './components/TopHeader'
 import PageHeader from './components/PageHeader'
+import AssessmentsTable from './components/AssessmentsTable'
 import './App.css'
 
 function App() {
@@ -10,7 +11,9 @@ function App() {
       <div className="app-shell__main">
         <TopHeader />
         <PageHeader />
-        <div className="app-shell__content" />
+        <div className="app-shell__content">
+          <AssessmentsTable />
+        </div>
       </div>
     </div>
   )
