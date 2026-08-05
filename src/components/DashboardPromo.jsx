@@ -323,33 +323,57 @@ function DashboardBuilderModal({ onClose }) {
   }
 
   return (
-    <div className="dashboard-builder" role="dialog" aria-modal="true" aria-labelledby="dashboard-builder-title">
-      <header className="dashboard-builder__header">
-        <div className="dashboard-builder__brand">
-          <span className="dashboard-builder__logo">OT</span>
-          <span className="dashboard-builder__brand-name">Assessments</span>
-        </div>
-        <div className="dashboard-builder__steps">
-          <span className="dashboard-builder__step dashboard-builder__step--active">1 · Choose cards</span>
-          <span className="dashboard-builder__step-divider">•</span>
-          <span className="dashboard-builder__step">2 · Your dashboard</span>
-        </div>
-        <button type="button" className="dashboard-builder__close" aria-label="Close" onClick={onClose}>
-          &times;
-        </button>
-      </header>
+    <div className="dashboard-builder__overlay" onClick={onClose}>
+      <div
+        className="dashboard-builder"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="dashboard-builder-title"
+        onClick={(event) => event.stopPropagation()}
+      >
+        <header className="dashboard-builder__header">
+          <div className="dashboard-builder__brand">
+            <span className="dashboard-builder__logo">OT</span>
+            <span className="dashboard-builder__brand-name">Assessments</span>
+          </div>
+          <div className="dashboard-builder__steps">
+            <span className="dashboard-builder__step dashboard-builder__step--active">1 · Choose cards</span>
+            <span className="dashboard-builder__step-divider">•</span>
+            <span className="dashboard-builder__step">2 · Your dashboard</span>
+          </div>
+          <button type="button" className="dashboard-builder__close" aria-label="Close" onClick={onClose}>
+            &times;
+          </button>
+        </header>
 
-      <div className="dashboard-builder__body">
-        <h1 id="dashboard-builder-title" className="dashboard-builder__title">Build your dashboard</h1>
-        <p className="dashboard-builder__subtitle">
-          Pick up to three cards for your top row. Every card answers one question and lets you drill into
-          the rows behind it. You can change the mix any time.
-        </p>
+        <div className="dashboard-builder__body">
+          <h1 id="dashboard-builder-title" className="dashboard-builder__title">Build your dashboard</h1>
+          <p className="dashboard-builder__subtitle">
+            Pick up to three cards for your top row. Every card answers one question and lets you drill into
+            the rows behind it. You can change the mix any time.
+          </p>
 
-        <div className="dashboard-builder__toolbar">
-          <span className="dashboard-builder__count">
-            <strong>{selectedIds.length}</strong> of {MAX_CARDS} selected
-          </span>
+          <div className="dashboard-builder__toolbar">
+            <span className="dashboard-builder__count">
+              <strong>{selectedIds.length}</strong> of {MAX_CARDS} selected
+            </span>
+          </div>
+
+          <div className="dashboard-builder__grid">
+            {CARD_DEFS.map((card) => (
+              <KpiCard
+                key={card.id}
+                card={card}
+                selected={selectedIds.includes(card.id)}
+                disabled={!selectedIds.includes(card.id) && selectedIds.length >= MAX_CARDS}
+                onToggle={toggleCard}
+              />
+            ))}
+            <FeedbackCard />
+          </div>
+        </div>
+
+        <footer className="dashboard-builder__footer">
           <button
             type="button"
             className="dashboard-builder__continue"
@@ -358,20 +382,7 @@ function DashboardBuilderModal({ onClose }) {
           >
             Continue &rarr;
           </button>
-        </div>
-
-        <div className="dashboard-builder__grid">
-          {CARD_DEFS.map((card) => (
-            <KpiCard
-              key={card.id}
-              card={card}
-              selected={selectedIds.includes(card.id)}
-              disabled={!selectedIds.includes(card.id) && selectedIds.length >= MAX_CARDS}
-              onToggle={toggleCard}
-            />
-          ))}
-          <FeedbackCard />
-        </div>
+        </footer>
       </div>
     </div>
   )
