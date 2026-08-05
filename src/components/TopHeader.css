@@ -1,0 +1,117 @@
+.top-header {
+  height: 66px;
+  min-height: 66px;
+  background: #f6f6f6;
+  border-bottom: 1px solid #b1b1b1;
+  display: flex;
+  align-items: center;
+  padding: 0 21px;
+  gap: 16px;
+}
+
+.top-header__org {
+  flex: 1;
+  min-width: 0;
+  color: #1a1a1a;
+  font-size: 18px;
+  font-weight: 600;
+  line-height: normal;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.top-header__utilities {
+  display: flex;
+  align-items: center;
+  gap: 27px;
+  flex-shrink: 0;
+}
+
+.top-header__icon-btn {
+  width: 42.94px;
+  height: 40px;
+  display: block;
+}
+
+.top-header__copilot {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 32px;
+  padding: 6px 16px;
+  background: #ffffff;
+  border: 1px solid #4c754d;
+  border-radius: 4px;
+}
+
+.top-header__copilot img {
+  width: 12px;
+  height: 15px;
+}
+
+.top-header__copilot span {
+  color: #33553e;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 20px;
+  white-space: nowrap;
+}
+
+.top-header__cluster {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.top-header__group-select {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  width: 152.44px;
+  height: 40px;
+  padding: 0 15px;
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  border-radius: 6px;
+}
+
+.top-header__group-select span {
+  color: #282828;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: normal;
+  white-space: nowrap;
+}
+
+.top-header__group-select img {
+  width: 16.1px;
+  height: 8.75px;
+  flex-shrink: 0;
+}
+
+.top-header__avatar-btn {
+  width: 42.94px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  border-radius: 6px;
+}
+
+.top-header__avatar {
+  width: 21.247px;
+  height: 21.247px;
+  border-radius: 20px;
+  background: #7e57c2;
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 400;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 16px;
+}

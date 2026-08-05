@@ -1,0 +1,128 @@
+.sidebar {
+  width: 224px;
+  min-width: 224px;
+  min-height: 100vh;
+  background: #000000;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.sidebar__brand {
+  height: 66px;
+  min-height: 66px;
+  border-bottom: 1px solid #333333;
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.sidebar__menu-btn {
+  position: absolute;
+  left: 1px;
+  top: 10px;
+  width: 40px;
+  height: 40px;
+}
+
+.sidebar__logo {
+  position: absolute;
+  left: 48px;
+  top: 21px;
+  width: 153px;
+  height: 22px;
+}
+
+.sidebar__product {
+  padding: 10px 0 10px 10px;
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: normal;
+}
+
+.sidebar__nav {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  overflow-y: auto;
+}
+
+.nav-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 52px;
+  min-height: 52px;
+  width: 100%;
+  padding-right: 6px;
+  background: #000000;
+}
+
+.nav-row--border {
+  border-top: 1px solid #333333;
+}
+
+.nav-row--active {
+  background: #1a1a1a;
+}
+
+.nav-row__highlight {
+  width: 6px;
+  align-self: stretch;
+  flex-shrink: 0;
+}
+
+.nav-row__icon {
+  width: 16px;
+  height: 16px;
+  object-fit: contain;
+  flex-shrink: 0;
+  margin-left: 8px;
+}
+
+.nav-row__label {
+  flex: 1;
+  min-width: 0;
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: normal;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.nav-row__chevron {
+  width: 15px;
+  height: 9px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform: rotate(90deg);
+}
+
+.nav-row__chevron img {
+  width: 100%;
+  height: 100%;
+}
+
+.sidebar__collapse {
+  position: sticky;
+  bottom: 0;
+  align-self: flex-end;
+  margin-right: 21px;
+  width: 34px;
+  height: 39px;
+  background: #000000;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sidebar__collapse img {
+  width: 16px;
+  height: 16px;
+}
