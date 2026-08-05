@@ -1,6 +1,7 @@
 import Sidebar from './components/Sidebar'
 import TopHeader from './components/TopHeader'
 import PageHeader from './components/PageHeader'
+import DashboardPromo from './components/DashboardPromo'
 import AssessmentsTable from './components/AssessmentsTable'
 import './App.css'
 
@@ -12,6 +13,7 @@ function App() {
         <TopHeader />
         <PageHeader />
         <div className="app-shell__content">
+          <DashboardPromo />
           <AssessmentsTable />
         </div>
       </div>
