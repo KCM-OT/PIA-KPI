@@ -28,7 +28,7 @@ const ROWS = [
   { id: '90332', name: 'AI/ML Processing', result: 'Low Risk', residual: 'Low', org: 'Orbit Telecom', respondent: { type: 'initials', text: 'KP', color: '#2e447d' } },
 ]
 
-const COLUMNS = '48px 48px 100px 219px 120px 196px 150px 186px 100px'
+const COLUMNS = '48px 48px 100px minmax(180px, 1fr) 120px minmax(160px, 1fr) 150px minmax(160px, 1fr) 100px'
 
 function SortIcon() {
   return (
