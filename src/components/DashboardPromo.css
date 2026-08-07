@@ -19,7 +19,7 @@
 
 .dashboard-illustration {
   flex-shrink: 0;
-  width: 220px;
+  width: 260px;
   padding: 20px;
   background: #f8f8f8;
   border-radius: 8px;
@@ -27,8 +27,8 @@
 
 .dashboard-illustration__grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 8px;
 }
 
 .widget-tile {
@@ -83,9 +83,9 @@
 }
 
 .widget-tile__label {
-  font-size: 11px;
+  font-size: 10px;
   color: #4d4d4d;
-  white-space: nowrap;
+  text-align: center;
 }
 
 /* Content */

@@ -139,7 +139,6 @@ function DashboardIllustration() {
       <div className="dashboard-illustration__grid">
         <WidgetTile variant="selected" label="Risk score" />
         <WidgetTile variant="selected" label="Open items" />
-        <WidgetTile variant="selected" label="Completion" />
         <WidgetTile variant="add" />
       </div>
     </div>
