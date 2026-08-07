@@ -3,6 +3,115 @@ import './DashboardPromo.css'
 
 const MAX_CARDS = 3
 
+function clamp(value, min, max) {
+  return Math.min(max, Math.max(min, value))
+}
+
+function hashString(value) {
+  let hash = 0
+  for (let i = 0; i < value.length; i += 1) {
+    hash = (hash << 5) - hash + value.charCodeAt(i)
+    hash |= 0
+  }
+  return hash
+}
+
+function createRng(seed) {
+  let state = seed >>> 0
+  return function next() {
+    state = (state + 0x6d2b79f5) | 0
+    let t = Math.imul(state ^ (state >>> 15), 1 | state)
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296
+  }
+}
+
+function getDaySpan(startDate, endDate) {
+  const start = new Date(startDate)
+  const end = new Date(endDate)
+  const diffDays = Math.round((end - start) / (1000 * 60 * 60 * 24))
+  return Math.max(1, diffDays + 1)
+}
+
+function computeVisualForRange(visual, daySpan, rng) {
+  switch (visual.type) {
+    case 'stat-pair': {
+      const overdue = Math.max(1, Math.round(daySpan * (0.12 + rng() * 0.18)))
+      const dueSoon = Math.max(1, Math.round(daySpan * (0.04 + rng() * 0.1)))
+      return {
+        ...visual,
+        items: [
+          { ...visual.items[0], value: String(overdue) },
+          { ...visual.items[1], value: String(dueSoon) },
+        ],
+      }
+    }
+    case 'stat-vs': {
+      const launched = Math.max(2, Math.round(daySpan * (0.25 + rng() * 0.35)))
+      const completed = Math.max(1, Math.round(launched * (0.55 + rng() * 0.35)))
+      return {
+        ...visual,
+        left: { ...visual.left, value: String(launched) },
+        right: { ...visual.right, value: String(completed) },
+      }
+    }
+    case 'stacked-bar': {
+      const total = Math.max(8, Math.round(daySpan * (0.3 + rng() * 0.4)))
+      const critShare = 0.12 + rng() * 0.08
+      const highShare = 0.22 + rng() * 0.1
+      const medShare = 0.32 + rng() * 0.12
+      const crit = Math.max(1, Math.round(total * critShare))
+      const high = Math.max(1, Math.round(total * highShare))
+      const med = Math.max(1, Math.round(total * medShare))
+      const low = Math.max(1, total - crit - high - med)
+      return {
+        ...visual,
+        segments: [
+          { ...visual.segments[0], flex: crit },
+          { ...visual.segments[1], flex: high },
+          { ...visual.segments[2], flex: med },
+          { ...visual.segments[3], flex: low },
+        ],
+        legend: `${crit} crit · ${high} high · ${med} med · ${low} low`,
+      }
+    }
+    case 'bars': {
+      return {
+        ...visual,
+        rows: visual.rows.map((row) => ({ ...row, value: clamp(Math.round(20 + rng() * 80), 10, 100) })),
+      }
+    }
+    case 'percent': {
+      return { ...visual, value: clamp(Math.round(45 + rng() * 50), 0, 100) }
+    }
+    case 'donut': {
+      const total = Math.max(5, Math.round(daySpan * (0.15 + rng() * 0.3)))
+      const lead = Math.max(1, Math.round(total * (0.25 + rng() * 0.35)))
+      return { ...visual, detail: `leads at ${lead} of ${total}` }
+    }
+    case 'sparkline': {
+      const points = []
+      let y = 12 + rng() * 8
+      for (let i = 0; i <= 6; i += 1) {
+        y = clamp(y + (rng() - 0.5) * 10, 2, 30)
+        points.push(`${i * 20},${y.toFixed(1)}`)
+      }
+      return { ...visual, points: points.join(' ') }
+    }
+    case 'list': {
+      return {
+        ...visual,
+        rows: visual.rows.map((row) => ({
+          ...row,
+          value: String(Math.max(0, Math.round(daySpan * (0.04 + rng() * 0.12)))),
+        })),
+      }
+    }
+    default:
+      return visual
+  }
+}
+
 function WidgetTile({ variant, label }) {
   if (variant === 'add') {
     return (
@@ -127,7 +236,12 @@ function CardVisual({ visual }) {
       return (
         <div className="kpi-visual kpi-visual--sparkline">
           <svg viewBox="0 0 120 32" preserveAspectRatio="none">
-            <polyline points="0,8 20,10 40,9 60,14 80,18 100,22 120,24" fill="none" stroke="#7fbfa1" strokeWidth="2" />
+            <polyline
+              points={visual.points || '0,8 20,10 40,9 60,14 80,18 100,22 120,24'}
+              fill="none"
+              stroke="#7fbfa1"
+              strokeWidth="2"
+            />
           </svg>
         </div>
       )
@@ -303,9 +417,7 @@ function FeedbackCard() {
   )
 }
 
-function DashboardBuilderModal({ onClose }) {
-  const [selectedIds, setSelectedIds] = useState([])
-
+function DashboardBuilderModal({ selectedIds, onToggle, onClose, onContinue }) {
   useEffect(() => {
     function handleKeyDown(event) {
       if (event.key === 'Escape') onClose()
@@ -313,14 +425,6 @@ function DashboardBuilderModal({ onClose }) {
     document.addEventListener('keydown', handleKeyDown)
     return () => document.removeEventListener('keydown', handleKeyDown)
   }, [onClose])
-
-  function toggleCard(id) {
-    setSelectedIds((current) => {
-      if (current.includes(id)) return current.filter((cardId) => cardId !== id)
-      if (current.length >= MAX_CARDS) return current
-      return [...current, id]
-    })
-  }
 
   return (
     <div className="dashboard-builder__overlay" onClick={onClose}>
@@ -357,7 +461,7 @@ function DashboardBuilderModal({ onClose }) {
                 card={card}
                 selected={selectedIds.includes(card.id)}
                 disabled={!selectedIds.includes(card.id) && selectedIds.length >= MAX_CARDS}
-                onToggle={toggleCard}
+                onToggle={onToggle}
               />
             ))}
             <FeedbackCard />
@@ -369,7 +473,7 @@ function DashboardBuilderModal({ onClose }) {
             type="button"
             className="dashboard-builder__continue"
             disabled={selectedIds.length === 0}
-            onClick={onClose}
+            onClick={onContinue}
           >
             Continue &rarr;
           </button>
@@ -379,23 +483,204 @@ function DashboardBuilderModal({ onClose }) {
   )
 }
 
-export default function DashboardPromo() {
-  const [isModalOpen, setIsModalOpen] = useState(false)
+function DashboardWidgetCard({ card, animationDelay, daySpan, rangeKey }) {
+  const rng = createRng(hashString(`${card.id}|${rangeKey}`))
+  const visual = computeVisualForRange(card.visual, daySpan, rng)
 
   return (
-    <div className="dashboard-promo">
-      <DashboardIllustration />
-      <div className="dashboard-promo__content">
-        <p className="dashboard-promo__eyebrow">Modular dashboard</p>
-        <h3 className="dashboard-promo__title">Customize your dashboard</h3>
-        <p className="dashboard-promo__description">
-          Build your own dashboard by choosing up to three KPI widgets that matter most to your team.
-        </p>
-        <button type="button" className="dashboard-promo__cta" onClick={() => setIsModalOpen(true)}>
-          Customize dashboard
+    <div className="dashboard-widget-card" style={{ animationDelay }}>
+      <div className="dashboard-widget-card__header">
+        <h4 className="dashboard-widget-card__title">{card.title}</h4>
+        <Tag label={card.tag} variant={card.tagVariant} />
+      </div>
+      <div className="dashboard-widget-card__visual">
+        <CardVisual visual={visual} />
+      </div>
+      <p className="dashboard-widget-card__question">{card.question}</p>
+    </div>
+  )
+}
+
+const RANGE_OPTIONS = [
+  { value: 'last-7', label: 'Last week', days: 7 },
+  { value: 'last-30', label: 'Last 30 days', days: 30 },
+  { value: 'last-90', label: 'Last 90 days', days: 90 },
+  { value: 'last-365', label: 'Last 12 months', days: 365 },
+  { value: 'custom', label: 'Custom range', days: null },
+]
+
+function formatDateInput(date) {
+  return date.toISOString().slice(0, 10)
+}
+
+function computeRangeDates(days) {
+  const end = new Date()
+  const start = new Date()
+  start.setDate(start.getDate() - days)
+  return { start: formatDateInput(start), end: formatDateInput(end) }
+}
+
+function DashboardFilterBar({ range, startDate, endDate, onRangeChange, onStartDateChange, onEndDateChange }) {
+  return (
+    <div className="dashboard-filter-bar">
+      <label className="dashboard-filter-bar__field">
+        <span className="dashboard-filter-bar__label">Range of days</span>
+        <select
+          className="dashboard-filter-bar__control"
+          value={range}
+          onChange={(event) => onRangeChange(event.target.value)}
+        >
+          {RANGE_OPTIONS.map((option) => (
+            <option key={option.value} value={option.value}>{option.label}</option>
+          ))}
+        </select>
+      </label>
+      <label className="dashboard-filter-bar__field">
+        <span className="dashboard-filter-bar__label">Starting date</span>
+        <input
+          type="date"
+          className="dashboard-filter-bar__control"
+          value={startDate}
+          onChange={(event) => onStartDateChange(event.target.value)}
+        />
+      </label>
+      <label className="dashboard-filter-bar__field">
+        <span className="dashboard-filter-bar__label">Ending date</span>
+        <input
+          type="date"
+          className="dashboard-filter-bar__control"
+          value={endDate}
+          onChange={(event) => onEndDateChange(event.target.value)}
+        />
+      </label>
+    </div>
+  )
+}
+
+function DashboardPanel({ cards, dateFilter, onCustomize }) {
+  const daySpan = getDaySpan(dateFilter.startDate, dateFilter.endDate)
+  const rangeKey = `${dateFilter.startDate}_${dateFilter.endDate}`
+
+  return (
+    <div className="dashboard-panel">
+      <div className="dashboard-panel__header">
+        <div>
+          <h3 className="dashboard-panel__title">Your dashboard</h3>
+          <p className="dashboard-panel__description">
+            Change the date range to recompute every card against assessments in that window.
+          </p>
+        </div>
+        <button type="button" className="dashboard-panel__customize" onClick={onCustomize}>
+          Customize
         </button>
       </div>
-      {isModalOpen && <DashboardBuilderModal onClose={() => setIsModalOpen(false)} />}
+
+      <DashboardFilterBar {...dateFilter} />
+
+      <div className="dashboard-widget-row">
+        {cards.map((card, index) => (
+          <DashboardWidgetCard
+            key={card.id}
+            card={card}
+            animationDelay={`${index * 180}ms`}
+            daySpan={daySpan}
+            rangeKey={rangeKey}
+          />
+        ))}
+      </div>
+    </div>
+  )
+}
+
+export default function DashboardPromo() {
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [selectedIds, setSelectedIds] = useState([])
+  const [dashboardCardIds, setDashboardCardIds] = useState([])
+
+  const initialRange = RANGE_OPTIONS.find((option) => option.value === 'last-90')
+  const initialDates = computeRangeDates(initialRange.days)
+  const [range, setRange] = useState(initialRange.value)
+  const [startDate, setStartDate] = useState(initialDates.start)
+  const [endDate, setEndDate] = useState(initialDates.end)
+
+  function toggleCard(id) {
+    setSelectedIds((current) => {
+      if (current.includes(id)) return current.filter((cardId) => cardId !== id)
+      if (current.length >= MAX_CARDS) return current
+      return [...current, id]
+    })
+  }
+
+  function handleOpenBuilder() {
+    setSelectedIds(dashboardCardIds)
+    setIsModalOpen(true)
+  }
+
+  function handleContinue() {
+    setDashboardCardIds(selectedIds)
+    setIsModalOpen(false)
+  }
+
+  function handleRangeChange(nextRange) {
+    setRange(nextRange)
+    const option = RANGE_OPTIONS.find((item) => item.value === nextRange)
+    if (option && option.days) {
+      const dates = computeRangeDates(option.days)
+      setStartDate(dates.start)
+      setEndDate(dates.end)
+    }
+  }
+
+  function handleStartDateChange(value) {
+    setStartDate(value)
+    setRange('custom')
+  }
+
+  function handleEndDateChange(value) {
+    setEndDate(value)
+    setRange('custom')
+  }
+
+  const dashboardCards = CARD_DEFS.filter((card) => dashboardCardIds.includes(card.id))
+
+  return (
+    <div className="dashboard-section">
+      {dashboardCards.length > 0 ? (
+        <DashboardPanel
+          cards={dashboardCards}
+          onCustomize={handleOpenBuilder}
+          dateFilter={{
+            range,
+            startDate,
+            endDate,
+            onRangeChange: handleRangeChange,
+            onStartDateChange: handleStartDateChange,
+            onEndDateChange: handleEndDateChange,
+          }}
+        />
+      ) : (
+        <div className="dashboard-promo">
+          <DashboardIllustration />
+          <div className="dashboard-promo__content">
+            <p className="dashboard-promo__eyebrow">Modular dashboard</p>
+            <h3 className="dashboard-promo__title">Customize your dashboard</h3>
+            <p className="dashboard-promo__description">
+              Build your own dashboard by choosing up to three KPI widgets that matter most to your team.
+            </p>
+            <button type="button" className="dashboard-promo__cta" onClick={handleOpenBuilder}>
+              Customize dashboard
+            </button>
+          </div>
+        </div>
+      )}
+      {isModalOpen && (
+        <DashboardBuilderModal
+          selectedIds={selectedIds}
+          onToggle={toggleCard}
+          onClose={() => setIsModalOpen(false)}
+          onContinue={handleContinue}
+        />
+      )}
     </div>
   )
 }
