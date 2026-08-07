@@ -158,6 +158,14 @@
   width: 24px;
   height: 24px;
   flex-shrink: 0;
+  background: none;
+  border: none;
+  border-radius: 4px;
+  padding: 0;
+}
+
+.filter-tag__close:hover {
+  background: rgba(0, 0, 0, 0.05);
 }
 
 .filter-tag__close img {

@@ -269,6 +269,11 @@ const CARD_DEFS = [
     tagVariant: 'red',
     question: 'Am I exposed? Overdue and due-soon at a glance.',
     visual: { type: 'stat-pair', items: [{ value: '28', label: 'overdue', variant: 'danger' }, { value: '10', label: 'due soon', variant: 'dark' }] },
+    cta: {
+      label: 'Review high-risk overdue items',
+      description: 'Start with the highest-risk assessments in your overdue and due-soon queue.',
+      filter: { field: 'residual', value: 'High', label: 'Residual risk: High' },
+    },
   },
   {
     id: 'open-risks-by-severity',
@@ -286,6 +291,11 @@ const CARD_DEFS = [
       ],
       legend: '7 crit · 13 high · 19 med · 11 low',
     },
+    cta: {
+      label: 'View high-severity risks',
+      description: 'Focus mitigation effort on your highest-severity open risks first.',
+      filter: { field: 'residual', value: 'High', label: 'Residual risk: High' },
+    },
   },
   {
     id: 'stage-pipeline',
@@ -301,6 +311,11 @@ const CARD_DEFS = [
         { label: 'Under review', value: 34, color: '#2f5f9e' },
       ],
     },
+    cta: {
+      label: 'Rebalance workload',
+      description: 'Redistribute in-progress work before the queue backs up further.',
+      filter: null,
+    },
   },
   {
     id: 'intake-vs-completed',
@@ -309,6 +324,11 @@ const CARD_DEFS = [
     tagVariant: 'green',
     question: 'Are we keeping up with what is coming in?',
     visual: { type: 'stat-vs', left: { value: '34', label: 'launched' }, right: { value: '29', label: 'completed' } },
+    cta: {
+      label: 'View completed assessments',
+      description: "Confirm intake is keeping pace by reviewing what's already closed out.",
+      filter: { field: 'stage', value: 'Completed', label: 'Stage: Completed' },
+    },
   },
   {
     id: 'on-time-completion',
@@ -317,6 +337,11 @@ const CARD_DEFS = [
     tagVariant: 'green',
     question: 'Is our SLA holding?',
     visual: { type: 'percent', value: 71 },
+    cta: {
+      label: 'Review non-compliant results',
+      description: 'Investigate the results dragging your on-time rate down.',
+      filter: { field: 'result', value: 'Non-Compliant', label: 'Result: Non-Compliant' },
+    },
   },
   {
     id: 'cycle-time-by-stage',
@@ -332,6 +357,11 @@ const CARD_DEFS = [
         { label: 'Under review', value: 88, color: '#8570c9' },
       ],
     },
+    cta: {
+      label: 'Flag the bottleneck stage',
+      description: 'Escalate the stage holding assessments longest before SLAs slip.',
+      filter: null,
+    },
   },
   {
     id: 'overdue-by-organisation',
@@ -339,7 +369,12 @@ const CARD_DEFS = [
     tag: 'Operator',
     tagVariant: 'blue',
     question: 'Which org is driving the overdue backlog?',
-    visual: { type: 'donut', label: 'Potential Transfers', detail: 'leads at 11 of 28' },
+    visual: { type: 'donut', label: 'Catalent Solutions', detail: 'leads at 11 of 28' },
+    cta: {
+      label: "View Catalent Solutions' assessments",
+      description: 'Follow up directly with the organization driving your overdue backlog.',
+      filter: { field: 'organization', value: 'Catalent Solutions', label: 'Organization: Catalent Solutions' },
+    },
   },
   {
     id: 'residual-risk-trend',
@@ -348,6 +383,11 @@ const CARD_DEFS = [
     tagVariant: 'red',
     question: 'Are we reducing risk over time?',
     visual: { type: 'sparkline' },
+    cta: {
+      label: 'Inspect current high-risk items',
+      description: "Check whether today's high-risk items match the recent trend.",
+      filter: { field: 'residual', value: 'High', label: 'Residual risk: High' },
+    },
   },
   {
     id: 'coverage-by-unit',
@@ -363,6 +403,11 @@ const CARD_DEFS = [
         { label: 'HR', value: 16, color: '#e8a34d' },
       ],
     },
+    cta: {
+      label: 'Request assessments from blind spots',
+      description: 'Reach out to the teams with zero assessment coverage.',
+      filter: null,
+    },
   },
   {
     id: 'my-action-queue',
@@ -376,6 +421,11 @@ const CARD_DEFS = [
         { dot: '#5b8fc9', label: 'Awaiting review', value: '5', valueVariant: 'dark' },
         { dot: '#d64545', label: 'Assigned + overdue', value: '3', valueVariant: 'danger' },
       ],
+    },
+    cta: {
+      label: 'Jump to my queue',
+      description: "Clear what's already assigned to you, starting with what's overdue.",
+      filter: { field: 'respondent', value: 'KP', label: 'Respondent: KP' },
     },
   },
 ]
@@ -482,9 +532,19 @@ function DashboardBuilderModal({ selectedIds, onToggle, onClose, onContinue }) {
   )
 }
 
-function DashboardWidgetCard({ card, animationDelay, daySpan, rangeKey }) {
+function DashboardWidgetCard({ card, animationDelay, daySpan, rangeKey, onApplyFilter }) {
+  const [justApplied, setJustApplied] = useState(false)
   const rng = createRng(hashString(`${card.id}|${rangeKey}`))
   const visual = computeVisualForRange(card.visual, daySpan, rng)
+
+  function handleApply() {
+    if (card.cta.filter) {
+      onApplyFilter(card.cta.filter)
+      document.getElementById('assessments-table')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }
+    setJustApplied(true)
+    setTimeout(() => setJustApplied(false), 1500)
+  }
 
   return (
     <div className="dashboard-widget-card" style={{ animationDelay }}>
@@ -496,6 +556,13 @@ function DashboardWidgetCard({ card, animationDelay, daySpan, rangeKey }) {
         <CardVisual visual={visual} />
       </div>
       <p className="dashboard-widget-card__question">{card.question}</p>
+
+      <div className="dashboard-widget-card__overlay">
+        <p className="dashboard-widget-card__overlay-text">{card.cta.description}</p>
+        <button type="button" className="dashboard-widget-card__overlay-button" onClick={handleApply}>
+          {justApplied ? 'Applied ✓' : card.cta.label}
+        </button>
+      </div>
     </div>
   )
 }
@@ -556,7 +623,7 @@ function DashboardFilterBar({ range, startDate, endDate, onRangeChange, onStartD
   )
 }
 
-function DashboardPanel({ cards, dateFilter, onCustomize }) {
+function DashboardPanel({ cards, dateFilter, onCustomize, onApplyFilter }) {
   const daySpan = getDaySpan(dateFilter.startDate, dateFilter.endDate)
   const rangeKey = `${dateFilter.startDate}_${dateFilter.endDate}`
 
@@ -584,6 +651,7 @@ function DashboardPanel({ cards, dateFilter, onCustomize }) {
             animationDelay={`${index * 180}ms`}
             daySpan={daySpan}
             rangeKey={rangeKey}
+            onApplyFilter={onApplyFilter}
           />
         ))}
       </div>
@@ -591,7 +659,7 @@ function DashboardPanel({ cards, dateFilter, onCustomize }) {
   )
 }
 
-export default function DashboardPromo() {
+export default function DashboardPromo({ onApplyFilter }) {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [selectedIds, setSelectedIds] = useState([])
   const [dashboardCardIds, setDashboardCardIds] = useState([])
@@ -648,6 +716,7 @@ export default function DashboardPromo() {
         <DashboardPanel
           cards={dashboardCards}
           onCustomize={handleOpenBuilder}
+          onApplyFilter={onApplyFilter}
           dateFilter={{
             range,
             startDate,

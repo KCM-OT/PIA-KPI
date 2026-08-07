@@ -14,21 +14,39 @@ import iconAvatarGroup from '../assets/icons/icon-avatar-group.svg'
 import './AssessmentsTable.css'
 
 const ROWS = [
-  { id: '45332', name: 'Data Processing Impact', result: 'Low Risk', residual: 'Low', org: 'Mercurial Logistics', respondent: { type: 'initials', text: 'KP', color: '#2e447d' } },
-  { id: '78433', name: 'Transfer Impact', result: 'Medium Risk', residual: 'Medium', org: 'Quicksilver Media', respondent: { type: 'initials', text: 'FE', color: '#cb347d' } },
-  { id: '89654', name: 'Legitimate Interest', result: 'Approved', residual: 'Low', org: 'Helix Pharmaceuticals', respondent: { type: 'initials', text: 'KP', color: '#2e447d' } },
-  { id: '53221', name: 'Data Protection Impact', result: 'High Risk – Mitigated', residual: 'High', org: 'Meridian Financial', respondent: { type: 'initials', text: 'NS', color: '#ab47bc' } },
-  { id: '09475', name: 'Vendor Risk', result: 'Approved with Conditions', residual: 'Medium', org: 'Stratos Aerospace', respondent: { type: 'initials', text: 'KP', color: '#2e447d' } },
-  { id: '65432', name: 'Third-Party Sharing', result: 'Low Risk', residual: 'Low', org: 'Vanguard Consulting', respondent: { type: 'empty' } },
-  { id: '65765', name: 'Automated Decision-Making', result: 'Non-Compliant', residual: 'Medium', org: 'Polaris Data Systems', respondent: { type: 'initials', text: 'KP', color: '#2e447d' } },
-  { id: '45322', name: "Children's Data", result: 'Approved with Conditions', residual: 'Low', org: 'Nexus Energy', respondent: { type: 'initials', text: 'KP', color: '#2e447d' } },
-  { id: '90324', name: 'Cross-Border Transfer', result: 'Medium Risk', residual: 'High', org: 'Catalent Solutions', respondent: { type: 'group', color: '#2e447d' } },
-  { id: '55432', name: 'Biometric Data', result: 'High Risk – Mitigated', residual: 'Low', org: 'Zenith Capital', respondent: { type: 'initials', text: 'KP', color: '#2e447d' } },
-  { id: '67445', name: 'Employee Monitoring', result: 'Approved', residual: 'Medium', org: 'Prism Manufacturing', respondent: { type: 'initials', text: 'KP', color: '#2e447d' } },
-  { id: '90332', name: 'AI/ML Processing', result: 'Low Risk', residual: 'Low', org: 'Orbit Telecom', respondent: { type: 'initials', text: 'KP', color: '#2e447d' } },
+  { id: '45332', name: 'Data Processing Impact', stage: 'Completed', result: 'Low Risk', residual: 'Low', org: 'Mercurial Logistics', respondent: { type: 'initials', text: 'KP', color: '#2e447d' } },
+  { id: '78433', name: 'Transfer Impact', stage: 'Completed', result: 'Medium Risk', residual: 'Medium', org: 'Quicksilver Media', respondent: { type: 'initials', text: 'FE', color: '#cb347d' } },
+  { id: '89654', name: 'Legitimate Interest', stage: 'Completed', result: 'Approved', residual: 'Low', org: 'Helix Pharmaceuticals', respondent: { type: 'initials', text: 'KP', color: '#2e447d' } },
+  { id: '53221', name: 'Data Protection Impact', stage: 'Completed', result: 'High Risk – Mitigated', residual: 'High', org: 'Meridian Financial', respondent: { type: 'initials', text: 'NS', color: '#ab47bc' } },
+  { id: '09475', name: 'Vendor Risk', stage: 'Completed', result: 'Approved with Conditions', residual: 'Medium', org: 'Stratos Aerospace', respondent: { type: 'initials', text: 'KP', color: '#2e447d' } },
+  { id: '65432', name: 'Third-Party Sharing', stage: 'Completed', result: 'Low Risk', residual: 'Low', org: 'Vanguard Consulting', respondent: { type: 'empty' } },
+  { id: '65765', name: 'Automated Decision-Making', stage: 'Completed', result: 'Non-Compliant', residual: 'Medium', org: 'Polaris Data Systems', respondent: { type: 'initials', text: 'KP', color: '#2e447d' } },
+  { id: '45322', name: "Children's Data", stage: 'Completed', result: 'Approved with Conditions', residual: 'Low', org: 'Nexus Energy', respondent: { type: 'initials', text: 'KP', color: '#2e447d' } },
+  { id: '90324', name: 'Cross-Border Transfer', stage: 'Completed', result: 'Medium Risk', residual: 'High', org: 'Catalent Solutions', respondent: { type: 'group', color: '#2e447d' } },
+  { id: '55432', name: 'Biometric Data', stage: 'Completed', result: 'High Risk – Mitigated', residual: 'Low', org: 'Zenith Capital', respondent: { type: 'initials', text: 'KP', color: '#2e447d' } },
+  { id: '67445', name: 'Employee Monitoring', stage: 'Completed', result: 'Approved', residual: 'Medium', org: 'Prism Manufacturing', respondent: { type: 'initials', text: 'KP', color: '#2e447d' } },
+  { id: '90332', name: 'AI/ML Processing', stage: 'Completed', result: 'Low Risk', residual: 'Low', org: 'Orbit Telecom', respondent: { type: 'initials', text: 'KP', color: '#2e447d' } },
 ]
 
 const COLUMNS = '48px 48px 100px minmax(180px, 1fr) 120px minmax(160px, 1fr) 150px minmax(160px, 1fr) 100px'
+
+function rowMatchesFilter(row, filter) {
+  if (!filter) return true
+  switch (filter.field) {
+    case 'stage':
+      return row.stage === filter.value
+    case 'result':
+      return row.result === filter.value
+    case 'residual':
+      return row.residual === filter.value
+    case 'organization':
+      return row.org === filter.value
+    case 'respondent':
+      return row.respondent.type === 'initials' && row.respondent.text === filter.value
+    default:
+      return true
+  }
+}
 
 function SortIcon() {
   return (
@@ -65,7 +83,7 @@ function Avatar({ respondent }) {
   )
 }
 
-function FilterToolbar() {
+function FilterToolbar({ activeFilter, onClearFilter }) {
   return (
     <div className="assessments-table__toolbar">
       <div className="assessments-table__toolbar-row">
@@ -92,17 +110,23 @@ function FilterToolbar() {
           <img className="add-filter__icon" src={iconPlus} alt="" />
           <span>Add filter</span>
         </button>
-        <span className="filter-tag">
-          <span className="filter-tag__label">Completed</span>
-          <span className="filter-tag__close">
-            <img src={iconCloseX} alt="Remove filter" />
-          </span>
-        </span>
-        <span className="filter-links">
-          <a href="#" className="filter-links__link">Hide</a>
-          <span className="filter-links__divider" />
-          <a href="#" className="filter-links__link">Clear all</a>
-        </span>
+        {activeFilter && (
+          <>
+            <span className="filter-tag">
+              <span className="filter-tag__label">{activeFilter.label}</span>
+              <button type="button" className="filter-tag__close" onClick={onClearFilter} aria-label="Remove filter">
+                <img src={iconCloseX} alt="" />
+              </button>
+            </span>
+            <span className="filter-links">
+              <a href="#" className="filter-links__link">Hide</a>
+              <span className="filter-links__divider" />
+              <a href="#" className="filter-links__link" onClick={(event) => { event.preventDefault(); onClearFilter() }}>
+                Clear all
+              </a>
+            </span>
+          </>
+        )}
       </div>
     </div>
   )
@@ -157,7 +181,7 @@ function TableDataRow({ row }) {
       <div className="cell cell--text">{row.id}</div>
       <div className="cell cell--link">{row.name}</div>
       <div className="cell cell--stage">
-        <span className="badge">Completed</span>
+        <span className="badge">{row.stage}</span>
       </div>
       <div className="cell cell--text">{row.result}</div>
       <div className="cell cell--text">{row.residual}</div>
@@ -169,7 +193,7 @@ function TableDataRow({ row }) {
   )
 }
 
-function Pagination() {
+function Pagination({ count }) {
   return (
     <div className="pagination">
       <div className="pagination__left">
@@ -197,7 +221,9 @@ function Pagination() {
         </div>
       </div>
       <div className="pagination__right">
-        <span className="pagination__count">Showing 1-50 of 50 items</span>
+        <span className="pagination__count">
+          {count > 0 ? `Showing 1-${count} of ${count} items` : 'No items match this filter'}
+        </span>
         <span className="pagination__divider" />
         <div className="pagination__row-select">
           <span>50 per view</span>
@@ -208,17 +234,19 @@ function Pagination() {
   )
 }
 
-export default function AssessmentsTable() {
+export default function AssessmentsTable({ activeFilter, onClearFilter }) {
+  const visibleRows = ROWS.filter((row) => rowMatchesFilter(row, activeFilter))
+
   return (
-    <div className="assessments-table">
-      <FilterToolbar />
+    <div className="assessments-table" id="assessments-table">
+      <FilterToolbar activeFilter={activeFilter} onClearFilter={onClearFilter} />
       <div className="assessments-table__body">
         <TableHeaderRow />
-        {ROWS.map((row) => (
+        {visibleRows.map((row) => (
           <TableDataRow key={row.id} row={row} />
         ))}
       </div>
-      <Pagination />
+      <Pagination count={visibleRows.length} />
     </div>
   )
 }
