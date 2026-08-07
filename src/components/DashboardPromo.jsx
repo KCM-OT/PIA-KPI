@@ -332,15 +332,6 @@ function DashboardBuilderModal({ onClose }) {
         onClick={(event) => event.stopPropagation()}
       >
         <header className="dashboard-builder__header">
-          <div className="dashboard-builder__brand">
-            <span className="dashboard-builder__logo">OT</span>
-            <span className="dashboard-builder__brand-name">Assessments</span>
-          </div>
-          <div className="dashboard-builder__steps">
-            <span className="dashboard-builder__step dashboard-builder__step--active">1 · Choose cards</span>
-            <span className="dashboard-builder__step-divider">•</span>
-            <span className="dashboard-builder__step">2 · Your dashboard</span>
-          </div>
           <button type="button" className="dashboard-builder__close" aria-label="Close" onClick={onClose}>
             &times;
           </button>
